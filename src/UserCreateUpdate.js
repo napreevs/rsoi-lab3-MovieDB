@@ -1,0 +1,91 @@
+import React, { Component } from  'react';
+import UsersService from "./UsersService";
+const usersService = new UsersService();
+
+class UserCreateUpdate extends Component {
+
+    constructor(props) {
+        super(props);
+
+        this.handleSubmit = this.handleSubmit.bind(this);
+      }
+
+      componentDidMount(){
+        const { match: { params } } = this.props;
+        if(params && params.pk)
+        {
+          usersService.getUser(params.pk).then((c)=>{
+            this.refs.username.value = c.username;
+            this.refs.email.value = c.email;
+            this.refs.password.value = c.password;
+          })
+        }
+      }
+
+      handleCreate(){
+        usersService.createUser(
+          {
+            "username": this.refs.username.value,
+            "email": this.refs.email.value,
+            "password": this.refs.password.value
+        }
+        ).then((result)=>{
+          alert("User created!");
+        }).catch(()=>{
+          alert('There was an error! Please re-check your form.');
+        });
+      }
+
+      handleUpdate(pk){
+        usersService.updateUser(
+          {
+            "pk": pk,
+            "username": this.refs.username.value,
+            "email": this.refs.email.value,
+            "password": this.refs.password.value
+        }
+        ).then((result)=>{
+          console.log(result);
+          alert("Customer updated!");
+        }).catch(()=>{
+          alert('There was an error! Please re-check your form.');
+        });
+      }
+      handleSubmit(event) {
+        const { match: { params } } = this.props;
+
+        if(params && params.pk){
+          this.handleUpdate(params.pk);
+        }
+        else
+        {
+          this.handleCreate();
+        }
+
+        event.preventDefault();
+      }
+
+      render() {
+        return (
+          <form onSubmit={this.handleSubmit}>
+          <div className="form-group">
+            <label>
+              Username:</label>
+              <input className="form-control" type="text" ref='username' />
+
+            <label>
+              Email:</label>
+              <input className="form-control" type="text" ref='email'/>
+
+            <label>
+              Password:</label>
+              <input className="form-control" type="text" ref='password' />
+
+            <input className="btn btn-primary" type="submit" value="Submit" />
+            </div>
+          </form>
+        );
+      }
+}
+
+export default UserCreateUpdate;
